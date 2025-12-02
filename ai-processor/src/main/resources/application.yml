@@ -4,11 +4,21 @@ server:
 spring:
   application:
     name: ai-processor
+
   security:
     oauth2:
       resourceserver:
         jwt:
           issuer-uri: http://localhost:8180/realms/interview-realm
+
+  ai:
+    openai:
+      base-url: https://api.groq.com/openai
+      api-key: ${GROQ_API_KEY}
+
+      chat:
+        options:
+          model: llama-3.3-70b-versatile
 
 eureka:
   client:
