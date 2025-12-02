@@ -1,44 +1,58 @@
 package com.interviewai.ai.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.interviewai.ai.dto.AnalysisResponse;
 import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
 
 @Service
 public class InterviewAnalysisService {
 
     private final ChatClient chatClient;
+    private final ObjectMapper objectMapper;
 
-    public InterviewAnalysisService(ChatClient.Builder chatClientBuilder) {
+    public InterviewAnalysisService(ChatClient.Builder chatClientBuilder, ObjectMapper objectMapper) {
         this.chatClient = chatClientBuilder.build();
+        this.objectMapper = objectMapper;
     }
 
-    public String analyzeResponse(String candidateAnswer) {
+    public AnalysisResponse analyzeResponse(String candidateAnswer) {
+
         String template = """
-                Actúa como un Arquitecto de Software Senior muy exigente.
-                Estás entrevistando a un candidato para un puesto Senior.
-                
-                Analiza esta respuesta técnica:
+                Actúa como un Entrevistador Técnico Senior muy exigente.
+                Analiza esta respuesta técnica de un candidato:
                 "%s"
                 
-                Tu tarea:
-                1. Detecta si hay imprecisiones técnicas.
-                2. Evalúa la profundidad del conocimiento.
-                3. Responde ÚNICAMENTE con un objeto JSON con este formato (sin markdown):
-                {
+                Responde ÚNICAMENTE con un objeto JSON válido.
+                NO escribas introducción, NO uses markdown, SOLO el JSON crudo.
+                Estructura requerida:
+                \\{
                     "esCorrecta": boolean,
                     "nivelDetectado": "Junior" | "Mid" | "Senior",
                     "feedback": "Texto breve",
                     "nota": numero_entero_1_al_100
-                }
+                \\}
                 """.formatted(candidateAnswer);
 
-        return chatClient.prompt()
+        String rawResponse = chatClient.prompt()
                 .user(template)
                 .call()
                 .content();
+
+        System.out.println("🤖 Respuesta Cruda de IA: " + rawResponse);
+
+
+        String jsonClean = rawResponse
+                .replace("```json", "")
+                .replace("```", "")
+                .trim();
+
+        try {
+            return objectMapper.readValue(jsonClean, AnalysisResponse.class);
+        } catch (Exception e) {
+            System.err.println("Error parseando JSON de IA: " + e.getMessage());
+
+            return new AnalysisResponse(false, "Error", "Error interno al procesar la respuesta de la IA.", 0);
+        }
     }
 }

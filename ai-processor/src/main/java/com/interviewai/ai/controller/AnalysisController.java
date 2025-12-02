@@ -1,5 +1,6 @@
 package com.interviewai.ai.controller;
 
+import com.interviewai.ai.dto.AnalysisResponse;
 import com.interviewai.ai.service.InterviewAnalysisService;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,8 +15,7 @@ public class AnalysisController {
     }
 
     @PostMapping("/analyze")
-    public String analyzeInterview(@RequestBody String text) {
-        System.out.println("🤖 IA Procesando: " + text);
+    public AnalysisResponse analyzeInterview(@RequestBody String text) {
         return analysisService.analyzeResponse(text);
     }
 }
