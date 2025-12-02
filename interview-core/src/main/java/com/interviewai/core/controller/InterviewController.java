@@ -1,5 +1,7 @@
 package com.interviewai.core.controller;
-import com.interviewai.core.model.Interview;
+
+import com.interviewai.core.dto.*;
+import com.interviewai.core.model.InterviewSession;
 import com.interviewai.core.service.InterviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -13,19 +15,28 @@ import java.util.List;
 public class InterviewController {
 
     private final InterviewService interviewService;
-
-
-    @PostMapping
-    public Interview submitInterview(@RequestBody String answer, @AuthenticationPrincipal Jwt jwt) {
-        String userId = jwt.getSubject();
-        String token = jwt.getTokenValue();
-
-        return interviewService.processInterview(userId, answer, token);
+    @PostMapping("/start")
+    public ChatStepResponse startInterview(@RequestBody StartInterviewRequest request, @AuthenticationPrincipal Jwt jwt) {
+        return interviewService.startSession(
+                jwt.getSubject(),
+                request.technology(),
+                request.difficulty(),
+                jwt.getTokenValue()
+        );
     }
 
-    @GetMapping
-    public List<Interview> getMyHistory(@AuthenticationPrincipal Jwt jwt) {
-        String userId = jwt.getSubject();
-        return interviewService.getUserHistory(userId);
+    @PostMapping("/reply")
+    public ChatStepResponse replyInterview(@RequestBody UserReplyRequest request, @AuthenticationPrincipal Jwt jwt) {
+        return interviewService.processReply(
+                jwt.getSubject(),
+                request.sessionId(),
+                request.answer(),
+                jwt.getTokenValue()
+        );
+    }
+
+    @GetMapping("/history")
+    public List<InterviewSession> getMySessions(@AuthenticationPrincipal Jwt jwt) {
+        return interviewService.getUserSessions(jwt.getSubject());
     }
 }

@@ -2,19 +2,22 @@ package com.interviewai.core.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "interviews")
+@Table(name = "interview_exchanges")
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
-public class Interview {
+public class InterviewExchange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String userId;
+    @ManyToOne
+    @JoinColumn(name = "session_id", nullable = false)
+    private InterviewSession session;
+
+    @Column(columnDefinition = "TEXT")
+    private String question;
 
     @Column(columnDefinition = "TEXT")
     private String candidateAnswer;
@@ -23,15 +26,4 @@ public class Interview {
     private String aiFeedback;
 
     private Integer score;
-
-    @Column(nullable = false)
-    private LocalDateTime createdAt;
-
-    @Enumerated(EnumType.STRING)
-    private InterviewStatus status;
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-    }
 }

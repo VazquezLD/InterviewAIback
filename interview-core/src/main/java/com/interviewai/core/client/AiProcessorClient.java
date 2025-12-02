@@ -1,6 +1,7 @@
 package com.interviewai.core.client;
-
 import com.interviewai.core.dto.AiAnalysisResponse;
+import com.interviewai.core.dto.AnalyzeRequest;
+import com.interviewai.core.dto.QuestionResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
@@ -15,13 +16,26 @@ public class AiProcessorClient {
         this.restClient = RestClient.builder().baseUrl(aiServiceUrl).build();
     }
 
-    public AiAnalysisResponse analyzeInterview(String text, String token) {
+    public AiAnalysisResponse analyzeInterview(String question, String answer, String token) {
+        AnalyzeRequest requestBody = new AnalyzeRequest(question, answer);
         return restClient.post()
                 .uri("/api/ai/analyze")
-                .contentType(MediaType.TEXT_PLAIN)
+                .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
-                .body(text)
+                .body(requestBody)
                 .retrieve()
                 .body(AiAnalysisResponse.class);
+    }
+
+    public QuestionResponse generateQuestion(String technology, String difficulty, String token) {
+        return restClient.post()
+                .uri(uriBuilder -> uriBuilder
+                        .path("/api/ai/generate-question")
+                        .queryParam("tech", technology)
+                        .queryParam("difficulty", difficulty)
+                        .build())
+                .header("Authorization", "Bearer " + token)
+                .retrieve()
+                .body(QuestionResponse.class);
     }
 }
