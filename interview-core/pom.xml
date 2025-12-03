@@ -17,6 +17,11 @@
                     <target>16</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
         </plugins>
     </build>
     <modelVersion>4.0.0</modelVersion>
