@@ -4,13 +4,14 @@ WORKDIR /app
 COPY pom.xml .
 RUN mvn -N install
 
-COPY ai-processor ./ai-processor
+COPY api-gateway ./api-gateway
 
-WORKDIR /app/ai-processor
+WORKDIR /app/api-gateway
+
+
 RUN mvn clean package -DskipTests
-
 FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
 COPY --from=build /app/api-gateway/target/*.jar app.jar
-EXPOSE 8082
+EXPOSE 8080
 ENTRYPOINT ["java", "-jar", "app.jar"]
