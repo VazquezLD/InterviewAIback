@@ -5,7 +5,7 @@ import com.interviewai.core.dto.AnalyzeRequest;
 import com.interviewai.core.dto.QuestionResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
-import org.springframework.http.client.SimpleClientHttpRequestFactory; // <--- IMPORTANTE
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
@@ -19,7 +19,6 @@ public class AiProcessorClient {
         factory.setConnectTimeout(60000);
         factory.setReadTimeout(60000);
 
-        // 3. Construimos el cliente usando esa fábrica
         this.restClient = RestClient.builder()
                 .baseUrl(aiServiceUrl)
                 .requestFactory(factory)
