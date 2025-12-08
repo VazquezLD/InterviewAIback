@@ -16,8 +16,8 @@ public class AiProcessorClient {
 
     public AiProcessorClient(@Value("${ai-processor.url:http://localhost:8082}") String aiServiceUrl) {
         SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(60000);
-        factory.setReadTimeout(60000);
+        factory.setConnectTimeout(120000);
+        factory.setReadTimeout(120000);
 
         this.restClient = RestClient.builder()
                 .baseUrl(aiServiceUrl)

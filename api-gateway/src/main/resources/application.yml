@@ -1,10 +1,16 @@
 server:
   port: ${PORT:8080}
+
 spring:
   application:
     name: api-gateway
   cloud:
     gateway:
+
+      httpclient:
+        connect-timeout: 5000
+        response-timeout: 120s
+
       discovery:
         locator:
           enabled: true
