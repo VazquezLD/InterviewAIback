@@ -7,7 +7,7 @@ import com.interviewai.core.repository.InterviewSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +30,18 @@ public class InterviewService {
         session.setUserId(userId);
         session.setTechnology(tech);
         session.setActive(true);
+    
+        session.setStartedAt(LocalDateTime.now()); 
 
         QuestionResponse aiQuestion = aiClient.generateQuestion(tech.name(), difficulty, token);
         
         InterviewExchange exchange = new InterviewExchange();
         exchange.setSession(session);
         exchange.setQuestion(aiQuestion.question());
+        
+        exchange.setCandidateAnswer(""); 
+        exchange.setAiFeedback("");
+        exchange.setScore(0);
         
         if (session.getExchanges() == null) {
             session.setExchanges(new ArrayList<>());
@@ -56,7 +62,7 @@ public class InterviewService {
 
     @Transactional
     public ChatStepResponse processReply(String userId, Long sessionId, String answer, String token) {
-        InterviewSession session = sessionRepository.findById(sessionId)
+         InterviewSession session = sessionRepository.findById(sessionId)
                 .orElseThrow(() -> new RuntimeException("Sesión no encontrada"));
 
         if (!session.getUserId().equals(userId)) throw new RuntimeException("No autorizado");
@@ -85,12 +91,12 @@ public class InterviewService {
                     token
             );
             InterviewExchange nextExchange = new InterviewExchange();
-            
-            
             nextExchange.setSession(session);
-            
-            
             nextExchange.setQuestion(nextAiQuestion.question());
+            nextExchange.setCandidateAnswer("");
+            nextExchange.setAiFeedback("");
+            nextExchange.setScore(0);
+
             session.getExchanges().add(nextExchange);
             sessionRepository.save(session);
             
