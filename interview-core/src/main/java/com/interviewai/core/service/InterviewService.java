@@ -7,8 +7,8 @@ import com.interviewai.core.repository.InterviewSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -17,15 +17,29 @@ public class InterviewService {
     private final AiProcessorClient aiClient;
 
     @Transactional
-    public ChatStepResponse startSession(String userId, Technology tech, String difficulty, String token) {
+    public ChatStepResponse startSession(String userId, String techName, String difficulty, String token) {
+        Technology tech;
+        try {
+            tech = Technology.valueOf(techName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Tecnología no soportada: " + techName);
+        }
+
         InterviewSession session = new InterviewSession();
         session.setUserId(userId);
         session.setTechnology(tech);
         session.setActive(true);
+    
         QuestionResponse aiQuestion = aiClient.generateQuestion(tech.name(), difficulty, token);
+        
         InterviewExchange exchange = new InterviewExchange();
         exchange.setSession(session);
         exchange.setQuestion(aiQuestion.question());
+        
+        if (session.getExchanges() == null) {
+            session.setExchanges(new ArrayList<>());
+        }
+        
         session.getExchanges().add(exchange);
         sessionRepository.save(session);
 
@@ -38,7 +52,6 @@ public class InterviewService {
                 "ACTIVE"
         );
     }
-
 
     @Transactional
     public ChatStepResponse processReply(String userId, Long sessionId, String answer, String token) {
@@ -67,14 +80,16 @@ public class InterviewService {
         try {
             QuestionResponse nextAiQuestion = aiClient.generateQuestion(
                     session.getTechnology().name(),
-                    "Senior", // TODO: Usar dificultad de la sesión, no hardcodeada
+                    "Senior", 
                     token
             );
             InterviewExchange nextExchange = new InterviewExchange();
-            nextExchange.setSession(session);
+            nextExchange.setSession(session); 
             nextExchange.setQuestion(nextAiQuestion.question());
             session.getExchanges().add(nextExchange);
             sessionRepository.save(session);
+            
+            // Obtenemos el ID del último elemento agregado
             nextExchangeId = session.getExchanges().get(session.getExchanges().size() - 1).getId();
             nextQuestionText = nextAiQuestion.question();
 

@@ -1,20 +1,21 @@
 package com.interviewai.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "interview_exchanges")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Data
 public class InterviewExchange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @ManyToOne
-    @JoinColumn(name = "session_id", nullable = false)
-    private InterviewSession session;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id")
+    @JsonIgnore
+    private InterviewSession session; 
 
     @Column(columnDefinition = "TEXT")
     private String question;

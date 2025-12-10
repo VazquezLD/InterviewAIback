@@ -1,4 +1,3 @@
 package com.interviewai.core.dto;
-import com.interviewai.core.model.Technology;
 
-public record StartInterviewRequest(Technology technology, String difficulty) {}
+public record StartInterviewRequest(String technology, String difficulty) {}
