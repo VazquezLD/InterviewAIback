@@ -7,8 +7,9 @@ import com.interviewai.core.repository.InterviewSessionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.util.List;
+
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +30,7 @@ public class InterviewService {
         session.setUserId(userId);
         session.setTechnology(tech);
         session.setActive(true);
-    
+
         QuestionResponse aiQuestion = aiClient.generateQuestion(tech.name(), difficulty, token);
         
         InterviewExchange exchange = new InterviewExchange();
@@ -84,12 +85,15 @@ public class InterviewService {
                     token
             );
             InterviewExchange nextExchange = new InterviewExchange();
-            nextExchange.setSession(session); 
+            
+            
+            nextExchange.setSession(session);
+            
+            
             nextExchange.setQuestion(nextAiQuestion.question());
             session.getExchanges().add(nextExchange);
             sessionRepository.save(session);
             
-            // Obtenemos el ID del último elemento agregado
             nextExchangeId = session.getExchanges().get(session.getExchanges().size() - 1).getId();
             nextQuestionText = nextAiQuestion.question();
 
